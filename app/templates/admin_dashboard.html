@@ -1,0 +1,28 @@
+﻿{% extends "base.html" %}
+{% block title %}CultureQuest Â· Admin{% endblock %}
+{% block content %}
+<div class="section-head">
+  <div>
+    <h1>Admin Dashboard</h1>
+    <p class="muted">Operations, scheduling, assets, plans, recordings, and subscriptions.</p>
+  </div>
+</div>
+<div class="stats-grid">
+  <div class="card stat-card"><div class="stat">{{ stats.channels }}</div><p>Channels</p></div>
+  <div class="card stat-card"><div class="stat">{{ stats.assets }}</div><p>Assets</p></div>
+  <div class="card stat-card"><div class="stat">{{ stats.schedules }}</div><p>Schedules</p></div>
+  <div class="card stat-card"><div class="stat">{{ stats.recordings }}</div><p>Recordings</p></div>
+  <div class="card stat-card"><div class="stat">{{ stats.favorites }}</div><p>Favorites</p></div>
+  <div class="card stat-card"><div class="stat">{{ stats.subscriptions }}</div><p>Subscriptions</p></div>
+</div>
+<div class="browse-grid top-gap">
+  <a class="browse-card" href="{{ url_for('admin.channels') }}"><strong>Channels</strong><span>Create, edit, publish</span></a>
+  <a class="browse-card" href="{{ url_for('admin.schedules') }}"><strong>Schedules</strong><span>Program 24/7 lineups</span></a>
+  <a class="browse-card" href="{{ url_for('admin.assets') }}"><strong>Assets</strong><span>Upload and manage content</span></a>
+  <a class="browse-card" href="{{ url_for('admin.manage_plans') }}"><strong>Plans</strong><span>Free and premium plans</span></a>
+  <a class="browse-card" href="{{ url_for('admin.recordings') }}"><strong>Recordings</strong><span>DVR scheduling</span></a>
+</div>
+{% endblock %}
+
+
+

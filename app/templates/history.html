@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}CultureQuest · Watch History{% endblock %}
+{% block content %}
+<div class="section-head"><div><h1>Watch History</h1><p class="muted">Recently watched channels.</p></div></div>
+<div class="guide-shell top-gap">
+  <div class="guide-row guide-head"><div>Time</div><div>Channel</div><div>Number</div><div>Open</div></div>
+  {% for item in history %}
+  <div class="guide-row"><div>{{ item['watched_at'] }}</div><div>{{ item['name'] or 'Unknown' }}</div><div>{{ item['number'] or '' }}</div><div>{% if item['slug'] %}<a class="btn btn-small btn-primary" href="{{ url_for('public.channel_detail', slug=item['slug']) }}">Open</a>{% endif %}</div></div>
+  {% endfor %}
+</div>
+{% endblock %}

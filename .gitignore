@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Flask & Database
+instance/
+.webassets-cache
+.env
+app.db
+culturequest.sqlite
+
+# Static Assets (Local Dev Only)
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,24 @@
+{
+  "channels": [
+    {
+      "name": "Beacon Movies",
+      "slug": "beacon-movies",
+      "number": 101,
+      "category": "Movies",
+      "description": "Movies and features",
+      "stream_url": "http://127.0.0.1:5000/streams/jam/index.m3u8",
+      "is_premium": false,
+      "is_active": true
+    },
+    {
+      "name": "Beacon Sports",
+      "slug": "beacon-sports",
+      "number": 103,
+      "category": "Sports",
+      "description": "Sports highlights and recaps",
+      "stream_url": "http://127.0.0.1:5000/streams/jam/index.m3u8",
+      "is_premium": true,
+      "is_active": true
+    }
+  ]
+}

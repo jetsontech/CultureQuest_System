@@ -1,0 +1,49 @@
+﻿{% extends "base.html" %}
+{% block title %}CultureQuest Ã‚Â· Admin Login{% endblock %}
+
+{% block content %}
+<div class="narrow">
+  <div class="card auth-card">
+    <div class="section-head">
+      <div>
+        <h1>Admin Login</h1>
+        <p class="muted">Sign in to manage CultureQuest.</p>
+      </div>
+    </div>
+
+    <form method="post" class="form-grid">
+      <label>
+        Email
+        <input type="email" name="email" placeholder="admin@culturequest.local" required>
+      </label>
+
+      <label>
+        Password
+        <input type="password" name="password" placeholder="Enter password" required>
+      </label>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Sign In</button>
+        <a class="btn" href="{{ url_for('public.home') }}">Back Home</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

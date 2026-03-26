@@ -1,0 +1,87 @@
+﻿{% extends "base.html" %}
+{% block title %}CultureQuest Ã‚Â· Admin Schedules{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <div>
+    <h1>Schedules</h1>
+    <p class="muted">Program assets into channel lineups.</p>
+  </div>
+  <a class="btn" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h2>Add Schedule Block</h2>
+    <form method="post" class="form-grid top-gap-sm">
+      <label>Channel
+        <select name="channel_id" required>
+          {% for channel in channels %}
+          <option value="{{ channel['id'] }}">CH {{ channel['number'] }} Ã‚Â· {{ channel['name'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Asset
+        <select name="asset_id" required>
+          {% for asset in assets %}
+          <option value="{{ asset['id'] }}">{{ asset['title'] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Starts At <input type="datetime-local" name="starts_at" required></label>
+      <label>Ends At <input type="datetime-local" name="ends_at" required></label>
+      <label>Title Override <input name="title_override" placeholder="Optional title override"></label>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Add Block</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Current Schedule</h2>
+    <div class="table top-gap-sm compact-table">
+      <div class="table-row table-head">
+        <div>Channel</div>
+        <div>Asset</div>
+        <div>Start</div>
+        <div>End</div>
+      </div>
+
+      {% for row in schedules %}
+      <div class="details-card">
+        <div class="table-row compact-table">
+          <div>{{ row['channel_name'] }}</div>
+          <div>{{ row['title_override'] or row['asset_title'] }}</div>
+          <div>{{ row['starts_at'] }}</div>
+          <div>{{ row['ends_at'] }}</div>
+        </div>
+
+        <form method="post" action="{{ url_for('admin.delete_schedule', schedule_id=row['id']) }}" class="top-gap-sm">
+          <button class="btn btn-danger btn-small" type="submit" onclick="return confirm('Delete this schedule block?')">Delete</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

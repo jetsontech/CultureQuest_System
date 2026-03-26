@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}CultureQuest · {{ category_name }}{% endblock %}
+{% block content %}
+<div class="section-head"><div><h1>{{ category_name }}</h1><p class="muted">Channels in this category.</p></div><a class="btn" href="{{ url_for('public.beacon') }}">Back to Live TV</a></div>
+<div class="browse-grid">
+{% for channel in channels %}
+  <a class="browse-card" href="{{ url_for('public.channel_detail', slug=channel['slug']) }}">
+    <strong>{{ channel['name'] }}</strong>
+    <span>CH {{ channel['number'] }}</span>
+  </a>
+{% endfor %}
+</div>
+{% endblock %}

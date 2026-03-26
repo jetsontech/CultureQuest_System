@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}CultureQuest · EPG{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <div>
+    <h1>EPG</h1>
+    <p class="muted">Electronic program guide for scheduled channels.</p>
+  </div>
+  <span class="pill">72 Hours</span>
+</div>
+
+<div class="guide-shell">
+  <div class="guide-row guide-head">
+    <div>Channel</div>
+    <div>Start</div>
+    <div>End</div>
+    <div>Program</div>
+  </div>
+
+  {% for row in epg %}
+  <div class="guide-row">
+    <div>{{ row['channel_name'] }}</div>
+    <div>{{ row['starts_at'] }}</div>
+    <div>{{ row['ends_at'] }}</div>
+    <div>{{ row['program_title'] }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

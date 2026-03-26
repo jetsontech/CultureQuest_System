@@ -1,0 +1,34 @@
+﻿{% extends "base.html" %}
+{% block title %}CultureQuest · Watch{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <div>
+    <h1>{{ channel['name'] }}</h1>
+    <p class="muted">{{ channel['category'] or 'Live TV' }}</p>
+  </div>
+</div>
+
+<div class="card">
+  {% if channel['stream_url'] %}
+    <video id="video" controls autoplay playsinline class="player"></video>
+    <p class="muted top-gap-sm break">{{ channel['stream_url'] }}</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+      const video = document.getElementById('video');
+      const src = {{ channel['stream_url']|tojson }};
+
+      if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(src);
+        hls.attachMedia(video);
+      } else {
+        video.src = src;
+      }
+    </script>
+  {% else %}
+    <div class="placeholder">No stream URL on this channel.</div>
+  {% endif %}
+</div>
+{% endblock %}

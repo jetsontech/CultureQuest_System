@@ -1,0 +1,53 @@
+@'
+{% extends "base.html" %}
+{% block title %}CultureQuest · Admin Channels{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <div>
+    <h1>Channels</h1>
+    <p class="muted">Create, update, and manage live channels.</p>
+  </div>
+  <a class="btn" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h2>Create Channel</h2>
+    <form method="post" class="form-grid top-gap-sm">
+      <label>Name <input name="name" required></label>
+      <label>Slug <input name="slug"></label>
+      <label>Channel Number <input name="number" type="number" required></label>
+      <label>Category <input name="category" required></label>
+      <label>Description <textarea name="description"></textarea></label>
+      <label>Stream URL <input name="stream_url" required></label>
+      <label class="checkbox"><input type="checkbox" name="is_premium"> Premium Channel</label>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Create Channel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Existing Channels</h2>
+    {% for channel in channels %}
+    <div class="details-card top-gap-sm">
+      <form method="post" action="{{ url_for('admin.edit_channel', channel_id=channel['id']) }}" class="form-grid">
+        <label>Number <input name="number" type="number" value="{{ channel['number'] }}" required></label>
+        <label>Name <input name="name" value="{{ channel['name'] }}" required></label>
+        <label>Slug <input name="slug" value="{{ channel['slug'] }}" required></label>
+        <label>Category <input name="category" value="{{ channel['category'] or '' }}" required></label>
+        <label>Description <textarea name="description">{{ channel['description'] or '' }}</textarea></label>
+        <label>Stream URL <input name="stream_url" value="{{ channel['stream_url'] or '' }}"></label>
+        <label class="checkbox"><input type="checkbox" name="is_premium" {% if channel['is_premium'] %}checked{% endif %}> Premium</label>
+        <label class="checkbox"><input type="checkbox" name="is_active" {% if channel['is_active'] %}checked{% endif %}> Active</label>
+        <div class="actions">
+          <button class="btn btn-primary btn-small" type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+'@ | Set-Content .\app\templates\admin_channels.html -Encoding utf8

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}CultureQuest · Recordings{% endblock %}
+{% block content %}
+<div class="section-head"><div><h1>Recordings</h1><p class="muted">Schedule and manage recordings.</p></div></div>
+<div class="grid-2">
+  <div class="card">
+    <h2>Schedule Recording</h2>
+    <form method="post" class="form-grid top-gap-sm">
+      <label>Title<input name="title" required></label>
+      <label>Channel<select name="channel_id">{% for c in channels %}<option value="{{ c['id'] }}">CH {{ c['number'] }} · {{ c['name'] }}</option>{% endfor %}</select></label>
+      <label>Starts At<input name="starts_at" placeholder="2026-03-23T20:00:00"></label>
+      <label>Ends At<input name="ends_at" placeholder="2026-03-23T21:00:00"></label>
+      <div class="actions"><button class="btn btn-primary" type="submit">Schedule</button></div>
+    </form>
+  </div>
+  <div class="card">
+    <h2>Scheduled Jobs</h2>
+    <div class="table">
+      {% for r in recordings %}
+      <div class="table-row"><div>{{ r['title'] }}</div><div>{{ r['channel_name'] or '' }}</div><div>{{ r['starts_at'] }}</div><div>{{ r['status'] }}</div><div>{{ r['output_path'] }}</div></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

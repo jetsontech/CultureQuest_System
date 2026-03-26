@@ -1,0 +1,73 @@
+﻿{% extends "base.html" %}
+{% block title %}CultureQuest Ã‚Â· Admin Plans{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <div>
+    <h1>Plans</h1>
+    <p class="muted">Manage Free, Plus, and Premium pricing tiers.</p>
+  </div>
+  <a class="btn" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h2>Create Plan</h2>
+    <form method="post" class="form-grid top-gap-sm">
+      <label>Name <input name="name" required></label>
+      <label>Slug <input name="slug"></label>
+      <label>Price (cents) <input name="price_cents" type="number" required></label>
+      <label>Billing Interval
+        <select name="billing_interval">
+          <option value="monthly">monthly</option>
+          <option value="yearly">yearly</option>
+        </select>
+      </label>
+      <label>Description <textarea name="description"></textarea></label>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Create Plan</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Existing Plans</h2>
+    <div class="table top-gap-sm">
+      <div class="table-row table-head">
+        <div>Name</div>
+        <div>Slug</div>
+        <div>Price</div>
+        <div>Interval</div>
+        <div>Status</div>
+      </div>
+
+      {% for plan in plans %}
+      <div class="table-row">
+        <div>{{ plan['name'] }}</div>
+        <div>{{ plan['slug'] }}</div>
+        <div>${{ '%.2f'|format(plan['price_cents'] / 100) }}</div>
+        <div>{{ plan['billing_interval'] }}</div>
+        <div>{% if plan['is_active'] %}Active{% else %}Inactive{% endif %}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

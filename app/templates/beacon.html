@@ -1,0 +1,61 @@
+﻿{% extends "base.html" %}
+{% block title %}CultureQuest · Beacon{% endblock %}
+{% block content %}
+<div class="section-head">
+    <div>
+        <h1>Beacon</h1>
+        <p class="muted">Live TV channels streaming now.</p>
+    </div>
+    <div class="status-legend">
+        <span class="status-dot online"></span> <small>Online</small>
+    </div>
+</div>
+
+<div class="guide-shell">
+    <div class="guide-row guide-head">
+        <div>Status</div>
+        <div>Channel</div>
+        <div>Now Playing</div>
+        <div>Up Next</div>
+    </div>
+    {% for channel in guide %}
+    <a class="guide-row guide-link channel-entry" href="{{ url_for('public.channel_detail', slug=channel['slug']) }}"
+        data-stream="{{ channel['stream_url'] }}">
+        <div class="status-cell">
+            <span class="status-dot" title="Checking status..."></span>
+        </div>
+        <div>
+            <strong>CH {{ channel['number'] }}</strong><br>
+            <small>{{ channel['name'] }}</small>
+        </div>
+        <div class="prog-info">{{ channel.get('now_playing') or 'Live Feed' }}</div>
+        <div class="prog-info muted">{{ channel.get('up_next') or '--' }}</div>
+    </a>
+    {% endfor %}
+</div>
+
+<script>
+    async function checkStreams() {
+        const entries = document.querySelectorAll('.channel-entry');
+        entries.forEach(async (entry) => {
+            const url = entry.dataset.stream;
+            const dot = entry.querySelector('.status-dot');
+
+            if (!url) {
+                dot.classList.add('offline');
+                return;
+            }
+
+            try {
+                const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+                dot.classList.add('online');
+                dot.title = "Online";
+            } catch (e) {
+                dot.classList.add('offline');
+                dot.title = "Connection Error";
+            }
+        });
+    }
+    window.addEventListener('DOMContentLoaded', checkStreams);
+</script>
+{% endblock %}

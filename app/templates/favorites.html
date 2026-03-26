@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}CultureQuest · Favorites{% endblock %}
+{% block content %}
+<div class="section-head"><div><h1>Favorites</h1><p class="muted">Your saved channels.</p></div></div>
+<div class="browse-grid">
+{% for channel in channels %}
+  <a class="browse-card" href="{{ url_for('public.channel_detail', slug=channel['slug']) }}"><strong>{{ channel['name'] }}</strong><span>CH {{ channel['number'] }}</span></a>
+{% endfor %}
+</div>
+{% endblock %}

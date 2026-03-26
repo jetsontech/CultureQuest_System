@@ -1,0 +1,11 @@
+name,category,stream_url,is_premium,is_active
+Movies One,Movies,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true
+Movies Two,Movies,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true
+Movies Three,Movies,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true
+News One,News,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true
+News Two,News,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true
+Sports One,Sports,http://127.0.0.1:5000/streams/jam/index.m3u8,true,true
+Sports Two,Sports,http://127.0.0.1:5000/streams/jam/index.m3u8,true,true
+Kids One,Kids,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true
+Docs One,Documentary,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true
+Creators One,Creators,http://127.0.0.1:5000/streams/jam/index.m3u8,false,true

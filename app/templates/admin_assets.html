@@ -1,0 +1,88 @@
+﻿{% extends "base.html" %}
+{% block title %}CultureQuest Ã‚Â· Admin Assets{% endblock %}
+
+{% block content %}
+<div class="section-head">
+  <div>
+    <h1>Assets</h1>
+    <p class="muted">Upload and manage media assets.</p>
+  </div>
+  <a class="btn" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h2>Add Asset</h2>
+    <form method="post" enctype="multipart/form-data" class="form-grid top-gap-sm">
+      <label>Title <input name="title" required></label>
+      <label>Slug <input name="slug"></label>
+      <label>Description <textarea name="description"></textarea></label>
+      <label>Media Type
+        <select name="media_type">
+          <option value="video">Video</option>
+          <option value="audio">Audio</option>
+          <option value="image">Image</option>
+        </select>
+      </label>
+      <label>Public URL <input name="public_url" placeholder="Optional remote URL"></label>
+      <label>Duration (seconds) <input name="duration_seconds" type="number" value="0"></label>
+      <label>Upload File <input name="file" type="file"></label>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Add Asset</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Media Library</h2>
+    <div class="table top-gap-sm">
+      <div class="table-row table-head">
+        <div>Title</div>
+        <div>Type</div>
+        <div>Duration</div>
+        <div>Source</div>
+        <div>Action</div>
+      </div>
+
+      {% for asset in assets %}
+      <div class="table-row">
+        <div>{{ asset['title'] }}</div>
+        <div>{{ asset['media_type'] }}</div>
+        <div>{{ asset['duration_seconds'] }}</div>
+        <div class="break">
+          {% if asset['public_url'] %}
+            {{ asset['public_url'] }}
+          {% elif asset['file_path'] %}
+            {{ asset['file_path'] }}
+          {% else %}
+            Ã¢â‚¬â€
+          {% endif %}
+        </div>
+        <div>
+          <form method="post" action="{{ url_for('admin.delete_asset', asset_id=asset['id']) }}">
+            <button class="btn btn-danger btn-small" type="submit" onclick="return confirm('Delete this asset?')">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

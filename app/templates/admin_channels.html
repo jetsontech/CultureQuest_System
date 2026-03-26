@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}CultureQuest · Admin Control{% endblock %}
+{% block content %}
+<div class="section-head">
+    <div>
+        <h1>Channel Manager</h1>
+        <p class="muted">Live Platform Control · {{ channels|length }} Active Feeds</p>
+    </div>
+    <div class="actions">
+        <div class="actions">
+            <form method="get" action="{{ url_for('admin.channels') }}" class="inline-search-form">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="🔍 Search channels..."
+                    class="glass-search">
+            </form>
+            <a class="btn btn-primary" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="admin-layout-grid">
+        <aside class="sidebar-form card glass-card">
+            <h3>Deploy New Channel</h3>
+            <form method="post" class="stack gap-sm top-gap-sm">
+                <input name="name" placeholder="Channel Name" required class="compact-input">
+                <div class="grid-2 gap-xs">
+                    <input name="number" type="number" placeholder="CH #" required class="compact-input">
+                    <input name="category" placeholder="Category" required class="compact-input">
+                </div>
+                <input name="stream_url" placeholder="Direct Stream URL (.m3u8)" class="compact-input">
+                <textarea name="description" placeholder="Short description..." class="compact-input"></textarea>
+                <label class="checkbox-ui"><input type="checkbox" name="is_premium"> <span>Premium Badge</span></label>
+                <button class="btn btn-primary full-width" type="submit">Publish to Network</button>
+            </form>
+        </aside>
+
+        <main class="channel-grid" id="channelList">
+            {% for channel in channels %}
+            <div class="mini-control-card glass-card"
+                data-search="{{ channel['name']|lower }} {{ channel['category']|lower }}">
+                <div class="card-header-mini">
+                    <span class="ch-badge">#{{ channel['number'] }}</span>
+                    <span class="cat-badge">{{ channel['category'] }}</span>
+                </div>
+
+                <div class="ch-meta">
+                    <strong>{{ channel['name'] }}</strong>
+                </div>
+
+                <form method="post" action="{{ url_for('admin.edit_channel', channel_id=channel['id']) }}"
+                    class="mini-editor">
+                    <input name="stream_url" value="{{ channel['stream_url'] or '' }}" class="inline-input"
+                        placeholder="No URL">
+                    <div class="mini-btn-row">
+                        <input type="hidden" name="name" value="{{ channel['name'] }}">
+                        <input type="hidden" name="number" value="{{ channel['number'] }}">
+                        <input type="hidden" name="category" value="{{ channel['category'] }}">
+                        <button type="submit" class="icon-btn" title="Save Changes">💾</button>
+                    </div>
+                </form>
+
+                <div class="danger-zone-mini">
+                    <form method="post" action="{{ url_for('admin.delete_channel', channel_id=channel.id) }}"
+                        onsubmit="return confirm('Delete CH {{ channel.number }}?');">
+                        <button type="submit" class="icon-btn-danger">🗑️</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </main>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        {% set params = {'q': search_query} if search_query else {} %}
+        {% if page > 1 %}
+        <a href="{{ url_for('admin.channels', page=page-1, **params) }}" class="btn">&laquo; Prev</a>
+        {% endif %}
+        <span class="page-info">Page {{ page }} of {{ total_pages }} ({{ total }} total)</span>
+        {% if page < total_pages %} <a href="{{ url_for('admin.channels', page=page+1, **params) }}" class="btn">Next
+            &raquo;</a>
+            {% endif %}
+    </div>
+    {% endif %}
+
+    <style>
+        .admin-layout-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        /* Sidebar Form */
+        .inline-search-form {
+            display: inline-block;
+            margin: 0;
+        }
+
+        .sidebar-form {
+            position: sticky;
+            top: 100px;
+            padding: 24px;
+        }
+
+        .compact-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .gap-xs {
+            gap: 8px;
+        }
+
+        /* Control Cards */
+        .mini-control-card {
+            padding: 15px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.2s;
+        }
+
+        .mini-control-card:hover {
+            border-color: var(--accent);
+        }
+
+        .card-header-mini {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .ch-badge {
+            color: var(--accent);
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .cat-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            opacity: 0.5;
+            letter-spacing: 1px;
+        }
+
+        .ch-meta {
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .mini-editor .inline-input {
+            width: 100%;
+            font-size: 0.75rem;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .mini-btn-row {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .danger-zone-mini {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+        }
+
+        /* Global Search Bar */
+        .glass-search {
+            padding: 12px 20px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--line);
+            color: white;
+            width: 350px;
+            outline: none;
+        }
+
+        .glass-search:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Icon Buttons */
+        .icon-btn,
+        .icon-btn-danger {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            filter: grayscale(1);
+            transition: 0.2s;
+        }
+
+        .icon-btn:hover {
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .icon-btn-danger:hover {
+            filter: drop-shadow(0 0 5px red);
+            transform: scale(1.1);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .page-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+    {% endblock %}

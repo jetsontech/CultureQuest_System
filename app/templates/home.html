@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}CultureQuest{% endblock %}
+{% block content %}
+<section class="hero-shell glass-blur">
+  <div class="hero-panel">
+    <div class="hero-copy">
+      <div class="eyebrow">CultureQuest Premier</div>
+      <h1>The Peak of Streaming</h1>
+      <p>Futuristic live channels, originals, premium culture, and category rails in one immersive platform.</p>
+      <div class="actions top-gap-sm">
+        <a class="btn btn-primary" href="{{ url_for('public.beacon') }}">Watch Live Now</a>
+        <a class="btn" href="{{ url_for('public.premium') }}">Explore Plans</a>
+      </div>
+    </div>
+    <div class="hero-side-grid">
+      {% for channel in featured %}
+      <a class="feature-tile" href="{{ url_for('public.channel_detail', slug=channel['slug']) }}">
+        <strong>{{ channel['name'] }}</strong>
+        <span>CH {{ channel['number'] }} Â· {{ channel['category'] or 'Featured' }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% for row in category_rows %}
+<section class="top-gap rail-section">
+  <div class="section-head">
+    <h2>{{ row['name'] }}</h2>
+    <a href="{{ url_for('public.category_page', category_name=row['name']) }}" class="pill">View All</a>
+  </div>
+  <div class="scrolling-rail">
+    {% for channel in row['channels'] %}
+    <a href="{{ url_for('public.channel_detail', slug=channel['slug']) }}" class="rail-card glass-card">
+      <div class="rail-poster alt-{{ loop.index % 4 }}">
+        {% if channel.get('logo_url') %}
+        <img class="channel-logo" src="{{ channel['logo_url'] }}" alt="{{ channel['name'] }}" loading="lazy"
+          onerror="this.style.display='none'">
+        {% endif %}
+        <div class="live-badge pulse">LIVE</div>
+      </div>
+      <div class="rail-meta">
+        <h3>{{ channel['name'] }}</h3>
+        <p>{{ channel['category'] or channel['description'] or 'Now Streaming' }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}
