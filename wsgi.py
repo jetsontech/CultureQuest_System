@@ -1,3 +1,4 @@
+# CultureQuest Production Entry Point - Vercel Ready
 from app import create_app
 import os
 from dotenv import load_dotenv
