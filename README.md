@@ -41,3 +41,4 @@ Then open `http://127.0.0.1:5000`.
 
 ## Important notes
 This is a real working local MVP. It is not a licensed premium carriage platform. Disney, HBO, ESPN, and similar premium networks require distribution rights, carriage agreements, or reseller partnerships before they can legally be offered.
+small note
