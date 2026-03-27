@@ -35,9 +35,13 @@ def create_app():
 
     with app.app_context():
         try:
-            ensure_platform_foundation()
+            # Only run this if we have a DB URL or we are NOT on Vercel
+            if os.getenv("DATABASE_URL") or not os.getenv("VERCEL"):
+                ensure_platform_foundation()
         except Exception as e:
             app.logger.error(f"Migration error: {e}")
+            # Do NOT crash the app if migration fails, just log it
+            pass
 
     app.register_blueprint(public_bp)
     app.register_blueprint(admin_bp)

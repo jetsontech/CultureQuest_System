@@ -16,6 +16,10 @@ public_bp = Blueprint("public", __name__)
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
+@public_bp.route("/health")
+def health_check():
+    return "CultureQuest is ALIVE!"
+
 
 
 def slugify(value: str) -> str:
