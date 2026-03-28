@@ -79,24 +79,35 @@ CREATE TABLE IF NOT EXISTS user_game_state (
 '''
 
 def transform_query(query, is_postgres):
-    """Converts SQLite '?' placeholders to PostgreSQL '%s' if needed."""
+    """Converts between SQLite and PostgreSQL syntax."""
     if is_postgres:
-        return query.replace('?', '%s').replace('INSERT OR IGNORE', 'INSERT').replace('AUTOINCREMENT', '')
-    return query.replace('SERIAL PRIMARY KEY', 'INTEGER PRIMARY KEY AUTOINCREMENT').replace('TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP', 'TEXT NOT NULL')
+        q = query.replace('?', '%s')
+        q = q.replace('INSERT OR IGNORE', 'INSERT')
+        q = q.replace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY')
+        q = q.replace('AUTOINCREMENT', '')
+        return q
+    else:
+        q = query.replace('SERIAL PRIMARY KEY', 'INTEGER PRIMARY KEY AUTOINCREMENT')
+        q = q.replace('TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP', 'TEXT NOT NULL')
+        return q
 
 class DBWrapper:
     def __init__(self, conn, is_postgres):
         self.conn = conn
         self.is_postgres = is_postgres
 
-    def execute(self, query, params=()):
-        q = transform_query(query, self.is_postgres)
+    def __getattr__(self, name):
+        return getattr(self.conn, name)
+
+    def cursor(self, *args, **kwargs):
         if self.is_postgres:
             from psycopg2.extras import RealDictCursor
-            cursor = self.conn.cursor(cursor_factory=RealDictCursor)
-        else:
-            cursor = self.conn.cursor()
-        
+            kwargs.setdefault('cursor_factory', RealDictCursor)
+        return self.conn.cursor(*args, **kwargs)
+
+    def execute(self, query, params=()):
+        q = transform_query(query, self.is_postgres)
+        cursor = self.cursor()
         cursor.execute(q, params)
         return cursor
 
@@ -106,28 +117,11 @@ class DBWrapper:
     def close(self):
         self.conn.close()
 
-
-    def fetchone(self, cursor):
-        row = cursor.fetchone()
-        if not row: return None
-        if self.is_postgres:
-            colnames = [desc[0] for desc in cursor.description]
-            return dict(zip(colnames, row))
-        return row
-
-    def fetchall(self, cursor):
-        rows = cursor.fetchall()
-        if self.is_postgres:
-            colnames = [desc[0] for desc in cursor.description]
-            return [dict(zip(colnames, row)) for row in rows]
-        return rows
-
 def get_db():
     if 'db' not in g:
         db_url = os.getenv('DATABASE_URL')
         if db_url and db_url.startswith('postgres'):
             import psycopg2
-            # Fix for common SQLAlchemy/Vercel postgresql:// vs postgres://
             if db_url.startswith("postgres://"):
                 db_url = db_url.replace("postgres://", "postgresql://", 1)
             
@@ -142,6 +136,7 @@ def get_db():
             g.db = DBWrapper(conn, is_postgres=False)
             
     return g.db
+
 
 
 def query_db(query, args=(), one=False):
