@@ -1,4 +1,4 @@
-﻿import os
+import os
 import uuid
 import subprocess
 import boto3
@@ -439,8 +439,31 @@ def channels():
         flash("Channel created.", "success")
         return redirect(url_for("admin.channels"))
 
-    rows = db.execute("SELECT * FROM channels ORDER BY number ASC").fetchall()
-    return render_template("admin_channels.html", channels=rows)
+    page = int(request.args.get("page", 1))
+    per_page = 20
+    search_query = request.args.get("q", "").strip()
+    
+    query = "SELECT * FROM channels"
+    params = []
+    if search_query:
+        query += " WHERE name LIKE ? OR category LIKE ?"
+        params = [f"%{search_query}%", f"%{search_query}%"]
+    
+    query += " ORDER BY number ASC"
+    
+    all_rows = db.execute(query, params).fetchall()
+    total = len(all_rows)
+    total_pages = (total + per_page - 1) // per_page
+    rows = all_rows[(page - 1) * per_page : page * per_page]
+
+    return render_template(
+        "admin_channels.html", 
+        channels=rows, 
+        page=page, 
+        total_pages=total_pages, 
+        total=total, 
+        search_query=search_query
+    )
 
 
 @admin_bp.route("/channels/<int:channel_id>/edit", methods=["POST"])
@@ -533,6 +556,15 @@ def schedules():
     channels = db.execute("SELECT id, name, number FROM channels ORDER BY number ASC").fetchall()
     assets = db.execute("SELECT id, title FROM assets ORDER BY id DESC").fetchall()
     return render_template("admin_schedules.html", schedules=rows, channels=channels, assets=assets)
+
+@admin_bp.route("/schedules/<int:schedule_id>/delete", methods=["POST"])
+@admin_required
+def delete_schedule(schedule_id):
+    db = get_db()
+    db.execute("DELETE FROM schedules WHERE id = ?", (schedule_id,))
+    db.commit()
+    flash("Schedule block removed.", "warning")
+    return redirect(url_for("admin.schedules"))
 
 
 @admin_bp.route("/plans", methods=["GET", "POST"])
@@ -895,6 +927,12 @@ def epg():
         LIMIT 500
     ''').fetchall()
     return render_template('epg.html', epg=rows)
+
+
+
+
+
+
 
 
 

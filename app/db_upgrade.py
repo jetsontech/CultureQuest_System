@@ -137,4 +137,15 @@ def ensure_platform_foundation():
             db_execute("INSERT INTO categories(name) VALUES (?)", (name,))
         except: pass
 
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS cultures (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        artifact_id TEXT UNIQUE NOT NULL,
+        artifact_name TEXT NOT NULL,
+        era TEXT NOT NULL,
+        rarity TEXT NOT NULL,
+        image_url TEXT NOT NULL
+    )
+    """)
+
     db.commit()

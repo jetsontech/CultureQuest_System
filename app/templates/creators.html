@@ -30,13 +30,12 @@
                     </select>
                 </div>
 
-                <div id="previewContainer" style="display: none;" class="top-gap-sm">
+                <div id="previewContainer" class="hidden top-gap-sm">
                     <video id="videoPreview" controls class="video-preview-el"></video>
                 </div>
 
                 <div class="drop-zone" id="dropZone">
-                    <input type="file" id="videoFile" accept="video/*" aria-label="Select video file"
-                        style="display: none;">
+                    <input type="file" id="videoFile" accept="video/*" aria-label="Select video file" class="hidden">
                     <div id="dropText">
                         <span class="pulse-icon">📁</span>
                         <strong>Click to Select</strong> or <strong>Drag Video Here</strong>
@@ -44,7 +43,7 @@
                     <div id="fileInfo" class="file-info-badge"></div>
                 </div>
 
-                <div id="progressContainer" style="display: none;" class="top-gap-sm">
+                <div id="progressContainer" class="hidden top-gap-sm">
                     <div class="progress-header">
                         <span id="statusText">Uploading...</span>
                         <span id="progressPercent">0%</span>
@@ -54,7 +53,7 @@
                     </div>
                     <div class="progress-footer">
                         <span id="transferRate">0 MB/s</span>
-                        <span id="segmentCount" style="display: none;">Segments: 0</span>
+                        <span id="segmentCount" class="hidden">Segments: 0</span>
                     </div>
                 </div>
 
@@ -88,8 +87,8 @@
 
     .glass-card {
         background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 20px;
         padding: 30px;
@@ -268,7 +267,7 @@
         const url = URL.createObjectURL(file);
         const preview = document.getElementById('videoPreview');
         preview.src = url;
-        document.getElementById('previewContainer').style.display = 'block';
+        document.getElementById('previewContainer').classList.remove('hidden');
         addLog("Media verified. Analyzing signature...");
     }
 
@@ -294,7 +293,7 @@
 
     async function pollEncoding(slug) {
         statusText.innerText = "Encoding...";
-        segmentCount.style.display = "inline";
+        segmentCount.classList.remove('hidden');
 
         const interval = setInterval(async () => {
             try {
@@ -329,7 +328,7 @@
         const submitBtn = document.getElementById('submitBtn');
 
         submitBtn.disabled = true;
-        document.getElementById('progressContainer').style.display = 'block';
+        document.getElementById('progressContainer').classList.remove('hidden');
         addLog(`Initiating multipart tunnel for ${file.name}...`);
 
         try {
