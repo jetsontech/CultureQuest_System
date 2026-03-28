@@ -1,4 +1,4 @@
-import os
+﻿import os
 import uuid
 import subprocess
 import boto3
@@ -612,6 +612,14 @@ def api_plans():
     return jsonify(plans())
 
 
+@api_bp.route("/cultures")
+def api_cultures():
+    db = get_db()
+    cursor = db.execute("SELECT * FROM cultures ORDER BY id ASC")
+    return jsonify(rows_to_dicts(cursor.fetchall()))
+
+
+
 @api_bp.route("/upload-multipart", methods=["POST"])
 @login_required
 def upload_multipart():
@@ -887,6 +895,9 @@ def epg():
         LIMIT 500
     ''').fetchall()
     return render_template('epg.html', epg=rows)
+
+
+
 
 
 

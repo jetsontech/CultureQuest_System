@@ -91,14 +91,13 @@ class DBWrapper:
 
     def execute(self, query, params=()):
         q = transform_query(query, self.is_postgres)
-        cursor = self.conn.cursor()
-        try:
-            cursor.execute(q, params)
-        except Exception as e:
-            if not self.is_postgres and 'UNIQUE constraint failed' in str(e):
-                pass # Emulate INSERT OR IGNORE for SQLite if transform didn't catch it
-            else:
-                raise e
+        if self.is_postgres:
+            from psycopg2.extras import RealDictCursor
+            cursor = self.conn.cursor(cursor_factory=RealDictCursor)
+        else:
+            cursor = self.conn.cursor()
+        
+        cursor.execute(q, params)
         return cursor
 
     def commit(self):
@@ -106,6 +105,7 @@ class DBWrapper:
 
     def close(self):
         self.conn.close()
+
 
     def fetchone(self, cursor):
         row = cursor.fetchone()
@@ -127,22 +127,22 @@ def get_db():
         db_url = os.getenv('DATABASE_URL')
         if db_url and db_url.startswith('postgres'):
             import psycopg2
-            from psycopg2.extras import RealDictCursor
             # Fix for common SQLAlchemy/Vercel postgresql:// vs postgres://
             if db_url.startswith("postgres://"):
                 db_url = db_url.replace("postgres://", "postgresql://", 1)
             
             conn = psycopg2.connect(db_url)
             g.db_type = 'postgres'
-            g.db = conn
+            g.db = DBWrapper(conn, is_postgres=True)
         else:
             conn = sqlite3.connect(current_app.config['DATABASE'])
             conn.row_factory = sqlite3.Row
             conn.execute('PRAGMA foreign_keys = ON')
             g.db_type = 'sqlite'
-            g.db = conn
+            g.db = DBWrapper(conn, is_postgres=False)
             
     return g.db
+
 
 def query_db(query, args=(), one=False):
     is_pg = g.get('db_type') == 'postgres'
