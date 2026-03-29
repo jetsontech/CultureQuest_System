@@ -183,7 +183,7 @@ def get_db():
         if db_url and db_url.startswith('postgres'):
             import psycopg2
             from psycopg2.extras import RealDictCursor
-            conn = psycopg2.connect(db_url)
+            conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
             g.db = DBWrapper(conn, True)
             g.db_type = 'postgres'
         else:

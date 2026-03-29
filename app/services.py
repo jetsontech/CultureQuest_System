@@ -41,9 +41,11 @@ def guide_items():
     db = get_db()
     now = datetime.utcnow().isoformat()
     
-    # 1. Fetch channels with current programs
+    # 1. Fetch channels with current programs explicitly
     channels_with_current = db.execute('''
-        SELECT ch.*, s.title_override, a.title AS asset_title, a.file_path, a.public_url
+        SELECT 
+            ch.id, ch.number, ch.name, ch.slug, ch.category, ch.description, ch.is_premium, ch.stream_url,
+            s.title_override, a.title AS asset_title, a.file_path, a.public_url
         FROM channels ch
         LEFT JOIN schedules s ON s.channel_id = ch.id AND s.starts_at <= ? AND s.ends_at >= ?
         LEFT JOIN assets a ON a.id = s.asset_id
