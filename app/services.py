@@ -39,7 +39,6 @@ def get_channel_schedule(channel_id):
 
 def guide_items():
     db = get_db()
-    now = datetime.utcnow().isoformat()
     
     # 1. Fetch channels with current programs explicitly
     channels_with_current = db.execute('''
@@ -47,20 +46,20 @@ def guide_items():
             ch.id, ch.number, ch.name, ch.slug, ch.category, ch.description, ch.is_premium, ch.stream_url,
             s.title_override, a.title AS asset_title, a.file_path, a.public_url
         FROM channels ch
-        LEFT JOIN schedules s ON s.channel_id = ch.id AND s.starts_at <= ? AND s.ends_at >= ?
+        LEFT JOIN schedules s ON s.channel_id = ch.id AND s.starts_at <= CURRENT_TIMESTAMP AND s.ends_at >= CURRENT_TIMESTAMP
         LEFT JOIN assets a ON a.id = s.asset_id
         WHERE ch.is_active = 1
         ORDER BY ch.number ASC
-    ''', (now, now)).fetchall()
+    ''').fetchall()
 
     # 2. Fetch all upcoming programs grouped by channel
     upcoming_rows = db.execute('''
         SELECT s.channel_id, s.title_override, a.title AS asset_title
         FROM schedules s
         JOIN assets a ON a.id = s.asset_id
-        WHERE s.starts_at > ?
+        WHERE s.starts_at > CURRENT_TIMESTAMP
         ORDER BY s.starts_at ASC
-    ''', (now,)).fetchall()
+    ''').fetchall()
 
     upcoming_map = {}
     for r in upcoming_rows:
