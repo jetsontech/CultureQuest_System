@@ -11,23 +11,23 @@
 
 <div class="card">
   <form method="get" action="{{ url_for('public.search_channels') }}" class="search-bar">
-    <input type="text" name="q" value="{{ query }}" placeholder="Search channels...">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search channels...">
     <button class="btn btn-primary" type="submit">Search</button>
   </form>
 </div>
 
-{% if query %}
+{% if q %}
 <div class="section-head top-gap">
-  <h2>Results for "{{ query }}"</h2>
-  <span class="pill">{{ channels|length }} found</span>
+  <h2>Results for "{{ q }}"</h2>
+  <span class="pill">{{ results|length }} found</span>
 </div>
 
 <div class="browse-grid">
-  {% for channel in channels %}
-    <a class="browse-card" href="{{ url_for('public.channel_detail', slug=channel['slug']) }}">
-      <strong>{{ channel['name'] }}</strong>
-      <span>CH {{ channel['number'] }}{% if channel['category'] %} · {{ channel['category'] }}{% endif %}</span>
-    </a>
+  {% for channel in results %}
+  <a class="browse-card" href="{{ url_for('public.channel_detail', slug=channel['slug']) }}">
+    <strong>{{ channel['name'] }}</strong>
+    <span>CH {{ channel['number'] }}{% if channel['category'] %} · {{ channel['category'] }}{% endif %}</span>
+  </a>
   {% endfor %}
 </div>
 {% endif %}

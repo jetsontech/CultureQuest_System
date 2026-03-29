@@ -76,6 +76,72 @@ CREATE TABLE IF NOT EXISTS user_game_state (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS cultures (
+    id SERIAL PRIMARY KEY,
+    artifact_id TEXT UNIQUE NOT NULL,
+    artifact_name TEXT NOT NULL,
+    era TEXT NOT NULL,
+    rarity TEXT NOT NULL,
+    image_url TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS watch_history (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    channel_id INTEGER,
+    asset_id INTEGER,
+    watched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    progress_seconds INTEGER DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS favorites (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    channel_id INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, channel_id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(channel_id) REFERENCES channels(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS recordings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    channel_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    starts_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    ends_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'scheduled',
+    output_path TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(channel_id) REFERENCES channels(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id INTEGER PRIMARY KEY,
+    avatar_url TEXT DEFAULT '',
+    favorite_genres TEXT DEFAULT '',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    plan_id INTEGER NOT NULL,
+    provider TEXT DEFAULT 'manual',
+    provider_ref TEXT DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'inactive',
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    ends_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(plan_id) REFERENCES plans(id) ON DELETE CASCADE
+);
 '''
 
 def transform_query(query, is_postgres):
@@ -99,12 +165,6 @@ class DBWrapper:
     def __getattr__(self, name):
         return getattr(self.conn, name)
 
-    def cursor(self, *args, **kwargs):
-        if self.is_postgres:
-            from psycopg2.extras import RealDictCursor
-            kwargs.setdefault('cursor_factory', RealDictCursor)
-        return self.conn.cursor(*args, **kwargs)
-
     def execute(self, query, params=()):
         q = transform_query(query, self.is_postgres)
         cursor = self.cursor()
@@ -112,122 +172,58 @@ class DBWrapper:
         return cursor
 
     def commit(self):
-        self.conn.commit()
+        return self.conn.commit()
 
     def close(self):
-        self.conn.close()
+        return self.conn.close()
 
 def get_db():
     if 'db' not in g:
         db_url = os.getenv('DATABASE_URL')
         if db_url and db_url.startswith('postgres'):
             import psycopg2
-            if db_url.startswith("postgres://"):
-                db_url = db_url.replace("postgres://", "postgresql://", 1)
-            
+            from psycopg2.extras import RealDictCursor
             conn = psycopg2.connect(db_url)
+            g.db = DBWrapper(conn, True)
             g.db_type = 'postgres'
-            g.db = DBWrapper(conn, is_postgres=True)
         else:
-            conn = sqlite3.connect(current_app.config['DATABASE'])
+            db_path = os.path.join(current_app.instance_path, 'culturequest.db')
+            os.makedirs(current_app.instance_path, exist_ok=True)
+            conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
-            conn.execute('PRAGMA foreign_keys = ON')
+            g.db = DBWrapper(conn, False)
             g.db_type = 'sqlite'
-            g.db = DBWrapper(conn, is_postgres=False)
-            
     return g.db
-
-
-
-def query_db(query, args=(), one=False):
-    is_pg = g.get('db_type') == 'postgres'
-    q = transform_query(query, is_pg)
-    
-    db = get_db()
-    if is_pg:
-        from psycopg2.extras import RealDictCursor
-        cur = db.cursor(cursor_factory=RealDictCursor)
-    else:
-        cur = db.execute(q, args)
-        
-    if is_pg:
-        cur.execute(q, args)
-        
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
 
 def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
 
-def db_execute(query, args=()):
-    is_pg = g.get('db_type') == 'postgres'
-    q = transform_query(query, is_pg)
-    db = get_db()
-    if is_pg:
-        cur = db.cursor()
-        cur.execute(q, args)
-        return cur
-    else:
-        return db.execute(q, args)
-
 def init_db():
     db = get_db()
-    is_pg = g.get('db_type') == 'postgres'
-    final_schema = transform_query(SCHEMA, is_pg)
-    if is_pg:
-        cur = db.cursor()
-        cur.execute(final_schema)
-        cur.close()
-    else:
-        db.executescript(final_schema)
-    db.commit()
-
-def seed_defaults():
-    db = get_db()
-    is_pg = g.get('db_type') == 'postgres'
-    now = datetime.utcnow()
-    
-    # Use helper for specific queries
-    def execute(q, p=()):
-        q_trans = transform_query(q, is_pg)
-        if is_pg:
-            cur = db.cursor()
-            cur.execute(q_trans, p)
-            return cur
-        else:
-            return db.execute(q_trans, p)
-
-    # Admin User
-    admin = query_db('SELECT id FROM users WHERE email = ?', ('admin@culturequest.local',), one=True)
-    if not admin:
-        execute(
-            'INSERT INTO users (email, password_hash, display_name, is_admin, created_at) VALUES (?, ?, ?, ?, ?)',
-            ('admin@culturequest.local', generate_password_hash('ChangeMe123!'), 'CultureQuest Admin', 1, now)
-        )
-
-    # Channels
-    channels = [
-        (101, 'Beacon Movies', 'beacon-movies', '24/7 movies and featured films.', 'Movies', '', '', '', 0, 1, now),
-        (102, 'Beacon Action', 'beacon-action', 'Action and thrillers around the clock.', 'Movies', '', '', '', 0, 1, now),
-        (103, 'Beacon Drama', 'beacon-drama', 'Drama and premium storytelling.', 'Drama', '', '', '', 0, 1, now),
-        (111, 'Creator One', 'creator-one', 'Featured creator channel.', 'Creators', '', '', '', 0, 1, now)
-    ]
-    for row in channels:
-        try:
-            execute('''
-            INSERT INTO channels
-            (number, name, slug, description, category, logo_url, poster_url, stream_url, is_premium, is_active, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', row)
-        except: pass # Simple ignore for seed
-
+    # Execute each statement in SCHEMA
+    for statement in SCHEMA.split(';'):
+        if statement.strip():
+            db.execute(statement)
     db.commit()
 
 @click.command('init-db')
 def init_db_command():
     init_db()
-    seed_defaults()
     click.echo('Initialized the database.')
+
+def init_app(app):
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
+
+def query_db(query, args=(), one=False):
+    cur = get_db().execute(query, args)
+    rv = [dict(row) for row in cur.fetchall()]
+    return (rv[0] if rv else None) if one else rv
+
+def db_execute(query, args=()):
+    db = get_db()
+    cur = db.execute(query, args)
+    db.commit()
+    return cur

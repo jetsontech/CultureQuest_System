@@ -39,27 +39,43 @@ def get_channel_schedule(channel_id):
 
 def guide_items():
     db = get_db()
-    channels = db.execute('SELECT * FROM channels WHERE is_active = 1 ORDER BY number ASC').fetchall()
     now = datetime.utcnow().isoformat()
+    
+    # 1. Fetch channels with current programs
+    channels_with_current = db.execute('''
+        SELECT ch.*, s.title_override, a.title AS asset_title, a.file_path, a.public_url
+        FROM channels ch
+        LEFT JOIN schedules s ON s.channel_id = ch.id AND s.starts_at <= ? AND s.ends_at >= ?
+        LEFT JOIN assets a ON a.id = s.asset_id
+        WHERE ch.is_active = 1
+        ORDER BY ch.number ASC
+    ''', (now, now)).fetchall()
+
+    # 2. Fetch all upcoming programs grouped by channel
+    upcoming_rows = db.execute('''
+        SELECT s.channel_id, s.title_override, a.title AS asset_title
+        FROM schedules s
+        JOIN assets a ON a.id = s.asset_id
+        WHERE s.starts_at > ?
+        ORDER BY s.starts_at ASC
+    ''', (now,)).fetchall()
+
+    upcoming_map = {}
+    for r in upcoming_rows:
+        cid = r['channel_id']
+        if cid not in upcoming_map:
+            upcoming_map[cid] = r
+
     items = []
-    for ch in channels:
-        current = db.execute('''
-            SELECT s.*, a.title AS asset_title, a.file_path, a.public_url
-            FROM schedules s JOIN assets a ON a.id = s.asset_id
-            WHERE s.channel_id = ? AND s.starts_at <= ? AND s.ends_at >= ?
-            ORDER BY s.starts_at ASC LIMIT 1
-        ''', (ch['id'], now, now)).fetchone()
-        upcoming = db.execute('''
-            SELECT s.*, a.title AS asset_title
-            FROM schedules s JOIN assets a ON a.id = s.asset_id
-            WHERE s.channel_id = ? AND s.starts_at > ?
-            ORDER BY s.starts_at ASC LIMIT 1
-        ''', (ch['id'], now)).fetchone()
+    for ch in channels_with_current:
         play_url = ch['stream_url'] or ''
         now_playing = None
-        if current:
-            play_url = current['public_url'] or (_make_upload_url(current['file_path']) if current['file_path'] else play_url)
-            now_playing = current['title_override'] or current['asset_title']
+        if ch['asset_title']:
+            play_url = ch['public_url'] or (_make_upload_url(ch['file_path']) if ch['file_path'] else play_url)
+            now_playing = ch['title_override'] or ch['asset_title']
+            
+        upcoming = upcoming_map.get(ch['id'])
+        
         items.append({
             'number': ch['number'],
             'name': ch['name'],

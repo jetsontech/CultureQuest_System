@@ -147,5 +147,18 @@ def ensure_platform_foundation():
         image_url TEXT NOT NULL
     )
     """)
+    
+    # Seed cultures
+    seeds = [
+        ('egypt_mask', 'Golden Mask of Tutankhamun', 'Ancient Egypt (1323 BC)', 'Legendary', 'https://images.unsplash.com/photo-1599118900389-236b28906606?auto=format&fit=crop&q=80&w=400'),
+        ('maya_calendar', 'Maya Calendar Stone', 'Maya Civilization (900 AD)', 'Epic', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400'),
+        ('greece_vase', 'Attic Black-Figure Vase', 'Ancient Greece (530 BC)', 'Rare', 'https://images.unsplash.com/photo-1576016770956-debb63d92058?auto=format&fit=crop&q=80&w=400'),
+        ('japan_samurai', 'Ancient Samurai Armor', 'Edo Period Japan (1700 AD)', 'Legendary', 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=400'),
+        ('benin_bronze', 'Benin Bronze Plaque', 'Kingdom of Benin (16th Century)', 'Epic', 'https://images.unsplash.com/photo-1615880484746-a114bebc0f8b?auto=format&fit=crop&q=80&w=400')
+    ]
+    for aid, name, era, rarity, url in seeds:
+        try:
+            db.execute("INSERT OR IGNORE INTO cultures (artifact_id, artifact_name, era, rarity, image_url) VALUES (?, ?, ?, ?, ?)", (aid, name, era, rarity, url))
+        except: pass
 
     db.commit()

@@ -382,19 +382,7 @@ def logout():
     return redirect(url_for("public.home"))
 
 
-@admin_bp.route("/")
-@admin_required
-def dashboard():
-    db = get_db()
-    stats = {
-        "channels": db.execute("SELECT COUNT(*) AS c FROM channels").fetchone()["c"],
-        "assets": db.execute("SELECT COUNT(*) AS c FROM assets").fetchone()["c"],
-        "schedules": db.execute("SELECT COUNT(*) AS c FROM schedules").fetchone()["c"],
-        "favorites": db.execute("SELECT COUNT(*) AS c FROM favorites").fetchone()["c"],
-        "recordings": db.execute("SELECT COUNT(*) AS c FROM recordings").fetchone()["c"],
-        "subscriptions": db.execute("SELECT COUNT(*) AS c FROM subscriptions").fetchone()["c"],
-    }
-    return render_template("admin_dashboard.html", stats=stats, guide=[])
+# Original admin dashboard was here (now at the end of the file)
 
 
 @admin_bp.route("/channels", methods=["GET", "POST"])
@@ -910,11 +898,24 @@ def encoding_status(slug):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 @public_bp.route('/epg')
 def epg():
     db = get_db()
+    # Use CURRENT_TIMESTAMP for PostgreSQL compatibility
     rows = db.execute('''
-        SELECT
+        SELECT 
             s.starts_at,
             s.ends_at,
             c.name AS channel_name,
@@ -922,32 +923,27 @@ def epg():
         FROM schedules s
         JOIN channels c ON c.id = s.channel_id
         JOIN assets a ON a.id = s.asset_id
-        WHERE s.ends_at >= datetime('now')
+        WHERE s.ends_at >= CURRENT_TIMESTAMP
         ORDER BY c.number ASC, s.starts_at ASC
         LIMIT 500
     ''').fetchall()
     return render_template('epg.html', epg=rows)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@admin_bp.route("/")
+@admin_bp.route("/dashboard")
+@admin_required
+def dashboard():
+    db = get_db()
+    stats = {
+        "channels": db.execute("SELECT COUNT(*) AS c FROM channels").fetchone()["c"],
+        "assets": db.execute("SELECT COUNT(*) AS c FROM assets").fetchone()["c"],
+        "schedules": db.execute("SELECT COUNT(*) AS c FROM schedules").fetchone()["c"],
+        "favorites": db.execute("SELECT COUNT(*) AS c FROM favorites").fetchone()["c"],
+        "recordings": db.execute("SELECT COUNT(*) AS c FROM recordings").fetchone()["c"],
+        "subscriptions": db.execute("SELECT COUNT(*) AS c FROM subscriptions").fetchone()["c"],
+    }
+    return render_template("admin_dashboard.html", stats=stats, guide=[])
 
 
 @public_bp.route('/streams/<path:filename>')
