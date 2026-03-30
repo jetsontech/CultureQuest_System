@@ -191,13 +191,17 @@ def get_db():
         if db_url and (db_url.startswith('postgres') or db_url.startswith('postgresql')):
             import psycopg2
             from psycopg2.extras import RealDictCursor
-            conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
+            # Add timeout to prevent hanging on connection failure
+            conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor, connect_timeout=10)
             g.db = DBWrapper(conn, True)
             g.db_type = 'postgres'
         else:
             # Fallback to local SQLite
             db_path = os.path.join(current_app.instance_path, 'culturequest.db')
-            os.makedirs(current_app.instance_path, exist_ok=True)
+            try:
+                os.makedirs(current_app.instance_path, exist_ok=True)
+            except OSError:
+                pass # Support read-only filesystems like Vercel
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             g.db = DBWrapper(conn, False)
