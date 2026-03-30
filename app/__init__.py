@@ -1,10 +1,1 @@
-from flask import Flask
-
-def create_app():
-    app = Flask(__name__)
-
-    @app.route('/')
-    def index():
-        return 'Culture Quest System is running!'
-
-    return app
+from flask import Flask`n`ndef create_app():`n    app = Flask(__name__)`n`n    @app.route("/")`n    def index():`n        return "Culture Quest System is running!"`n`n    return app
