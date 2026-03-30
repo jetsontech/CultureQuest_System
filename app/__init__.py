@@ -13,8 +13,11 @@ def create_app():
         MAX_CONTENT_LENGTH=1024 * 1024 * 1024,
     )
 
-    os.makedirs(app.instance_path, exist_ok=True)
-    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    try:
+        os.makedirs(app.instance_path, exist_ok=True)
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    except OSError:
+        pass # Support read-only filesystems like Vercel
 
     init_app(app)
 
