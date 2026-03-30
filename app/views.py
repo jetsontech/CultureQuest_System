@@ -204,6 +204,22 @@ def category_page(category_name):
 
 
 
+@api_bp.route("/debug/counts")
+def debug_counts():
+    try:
+        from .db import get_db
+        db = get_db()
+        c_total = db.execute("SELECT count(*) as count FROM channels").fetchone()
+        c_active = db.execute("SELECT count(*) as count FROM channels WHERE is_active = 1").fetchone()
+        return jsonify({
+            "status": "online",
+            "db_type": "postgres" if getattr(db, "is_postgres", False) else "sqlite",
+            "channels_total": c_total["count"] if c_total else 0,
+            "channels_active": c_active["count"] if c_active else 0
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @public_bp.route("/search")
 def search_channels():
     q = request.args.get("q", "").strip()
