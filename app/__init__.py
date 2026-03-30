@@ -1,10 +1,9 @@
-﻿import os
+import os
 from flask import Flask
 from .db import close_db, init_db_command
 from .views import public_bp, admin_bp, api_bp
 from .hls_proxy import hls_bp
 from .db_upgrade import ensure_platform_foundation
-
 
 def create_app():
     app = Flask(__name__)
@@ -49,14 +48,3 @@ def create_app():
     app.register_blueprint(hls_bp)
     
     return app
-# ... your existing code above ...
-
-    app.register_blueprint(public_bp)
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(api_bp)
-    app.register_blueprint(hls_bp)
-    
-    return app
-
-# --- ADD THIS EXACT LINE AT THE VERY BOTTOM ---
-app = create_app()
