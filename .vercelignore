@@ -14,10 +14,11 @@ instance/*.sqlite
 app.db
 
 # Large Media Files (Should be on S3/R2)
-app/static/uploads/*
-!app/static/uploads/.gitkeep
-streams/*
-uploads/*
+app/static/uploads/
+streams/
+uploads/
+instance/
+.git/
 
 # Scripts & Misc
 *.ps1
