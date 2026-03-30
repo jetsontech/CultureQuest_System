@@ -338,6 +338,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: "create", filename: file.name, contentType: file.type || "video/mp4" })
             });
+
+            if (!initRes.ok) {
+                const errorData = await initRes.json().catch(() => ({}));
+                throw new Error(errorData.message || errorData.error || `Initialization failed: ${initRes.status} ${initRes.statusText}`);
+            }
+
             const { uploadId, key } = await initRes.json();
             addLog(`Tunnel established. ID: ${uploadId.substring(0, 8)}...`);
 
@@ -359,6 +365,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: "sign-part", key, uploadId, partNumber })
                 });
+
+                if (!signRes.ok) {
+                    const errorData = await signRes.json().catch(() => ({}));
+                    throw new Error(errorData.message || errorData.error || `Signing part ${partNumber} failed`);
+                }
+
                 const { signedUrl } = await signRes.json();
 
                 // Direct PUT to S3
@@ -382,7 +394,7 @@
 
                             resolve();
                         } else {
-                            reject(new Error(`Part ${partNumber} failed`));
+                            reject(new Error(`Part ${partNumber} failed: ${xhr.status} ${xhr.statusText}`));
                         }
                     };
                     xhr.onerror = () => reject(new Error("Network Error"));
@@ -397,6 +409,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: "complete", key, uploadId, parts })
             });
+
+            if (!completeRes.ok) {
+                const errorData = await completeRes.json().catch(() => ({}));
+                throw new Error(errorData.message || errorData.error || "Completion failed");
+            }
+
             const { publicUrl } = await completeRes.json();
             addLog("Handshake verified. Registering with CultureQuest...");
 

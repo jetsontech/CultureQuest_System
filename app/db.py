@@ -148,13 +148,19 @@ def transform_query(query, is_postgres):
     """Converts between SQLite and PostgreSQL syntax."""
     if is_postgres:
         q = query.replace('?', '%s')
+        # Use regex for LIKE to handle cases with/without spaces
+        q = re.sub(r'\bLIKE\b', 'ILIKE', q, flags=re.IGNORECASE)
         q = q.replace('INSERT OR IGNORE', 'INSERT')
         q = q.replace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY')
         q = q.replace('AUTOINCREMENT', '')
+        if 'SELECT' in q:
+            print(f"DEBUG DB (Postgres): {q}")
         return q
     else:
         q = query.replace('SERIAL PRIMARY KEY', 'INTEGER PRIMARY KEY AUTOINCREMENT')
         q = q.replace('TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP', 'TEXT NOT NULL')
+        if 'SELECT' in q:
+            print(f"DEBUG DB (SQLite): {q}")
         return q
 
 class DBWrapper:
@@ -179,14 +185,17 @@ class DBWrapper:
 
 def get_db():
     if 'db' not in g:
-        db_url = os.getenv('DATABASE_URL')
-        if db_url and db_url.startswith('postgres'):
+        # Check multiple possible environment variables for the database URL
+        db_url = os.getenv('DATABASE_URL') or os.getenv('POSTGRES_URL') or os.getenv('SUPABASE_DB_URL')
+        
+        if db_url and (db_url.startswith('postgres') or db_url.startswith('postgresql')):
             import psycopg2
             from psycopg2.extras import RealDictCursor
             conn = psycopg2.connect(db_url, cursor_factory=RealDictCursor)
             g.db = DBWrapper(conn, True)
             g.db_type = 'postgres'
         else:
+            # Fallback to local SQLite
             db_path = os.path.join(current_app.instance_path, 'culturequest.db')
             os.makedirs(current_app.instance_path, exist_ok=True)
             conn = sqlite3.connect(db_path)

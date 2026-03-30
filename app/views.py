@@ -31,7 +31,15 @@ def row_to_dict(row):
 
 
 def rows_to_dicts(rows):
-    return [dict(r) for r in rows]
+    if not rows: return []
+    res = []
+    for r in rows:
+        try:
+            res.append(dict(r))
+        except (TypeError, ValueError):
+            # Fallback for weird cursor objects
+            res.append(r)
+    return res
 
 
 def normalize_local_stream_url(stream_url: str) -> str:
@@ -200,29 +208,21 @@ def category_page(category_name):
 def search_channels():
     q = request.args.get("q", "").strip()
     db = get_db()
+    results = []
 
-    if not q:
-        rows = []
-    else:
+    if q:
         like = f"%{q}%"
-        rows = db.execute(
-            """
-            SELECT *
-            FROM channels
-            WHERE is_active = 1
-              AND (
-                    name LIKE ?
-                 OR slug LIKE ?
-                 OR category LIKE ?
-                 OR description LIKE ?
-              )
-            ORDER BY number ASC
-            LIMIT 100
-            """,
-            (like, like, like, like),
-        ).fetchall()
+        try:
+            # Direct query to ensure no weirdness with multi-line strings or spaces
+            query = "SELECT * FROM channels WHERE is_active = 1 AND (name LIKE ? OR category LIKE ? OR description LIKE ? OR slug LIKE ?) ORDER BY number ASC LIMIT 100"
+            rows = db.execute(query, (like, like, like, like)).fetchall()
+            results = rows_to_dicts(rows)
+            print(f"SEARCH DEBUG: Query '{q}' found {len(results)} results")
+        except Exception as e:
+            print(f"SEARCH ERROR: {e}")
+            flash(f"Search error: {e}", "danger")
 
-    return render_template("search.html", query=q, channels=rows_to_dicts(rows))
+    return render_template("search.html", q=q, results=results)
 
 
 
@@ -944,6 +944,9 @@ def dashboard():
         "subscriptions": db.execute("SELECT COUNT(*) AS c FROM subscriptions").fetchone()["c"],
     }
     return render_template("admin_dashboard.html", stats=stats, guide=[])
+
+
+
 
 
 @public_bp.route('/streams/<path:filename>')
