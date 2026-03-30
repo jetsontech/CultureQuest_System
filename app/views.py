@@ -429,7 +429,7 @@ def channels():
         if upload_file and upload_file.filename:
             filename = secure_filename(upload_file.filename)
             dest = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
-            upload_file.stream.seek(0); file.stream.seek(0); file.save(dest)
+            upload_file.stream.seek(0); upload_file.save(dest)
             uploaded_public_url = url_for("public.serve_uploads", filename=filename)
             db.execute("""
                 INSERT INTO assets
