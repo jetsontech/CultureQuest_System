@@ -17,32 +17,7 @@ culturequest.sqlite
 # Static Assets (Local Dev Only)
 app/static/uploads/*
 !app/static/uploads/.gitkeep
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-
-# OS
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
-env/
-venv/
-ENV/
-
-# Flask & Database
-instance/
-.webassets-cache
-.env
-app.db
-culturequest.sqlite
-
-# Static Assets (Local Dev Only)
-app/static/uploads/*
-!app/static/uploads/.gitkeep
+streams/
 
 # IDEs
 .vscode/
@@ -57,4 +32,3 @@ node_modules/
 package-lock.json
 .vercel
 .env*.local
-streams/

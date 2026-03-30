@@ -5,17 +5,24 @@ from .db import get_db
 
 hls_bp = Blueprint("hls", __name__, url_prefix="/hls")
 
-SESSION = requests.Session()
-SESSION.headers.update({
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/122.0.0.0 Safari/537.36"
-    ),
-    "Accept": "*/*",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Connection": "keep-alive",
-})
+_SESSION = None
+
+def get_session():
+    global _SESSION
+    if _SESSION is None:
+        import requests
+        _SESSION = requests.Session()
+        _SESSION.headers.update({
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/122.0.0.0 Safari/537.36"
+            ),
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Connection": "keep-alive",
+        })
+    return _SESSION
 
 
 def get_channel_by_slug(slug):
@@ -28,7 +35,7 @@ def get_channel_by_slug(slug):
 
 def fetch_url(url):
     try:
-        resp = SESSION.get(url, timeout=20, allow_redirects=True, stream=False)
+        resp = get_session().get(url, timeout=20, allow_redirects=True, stream=False)
         resp.raise_for_status()
         return resp
     except Exception:
