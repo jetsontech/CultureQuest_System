@@ -7,7 +7,7 @@ from .db_upgrade import ensure_platform_foundation
 
 
 def create_app():
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__)
     
     # Use environment variables for production, with safe dev defaults
     secret_key = os.environ.get("FLASK_SECRET_KEY", os.environ.get("CQ_SECRET_KEY", "dev-secret-change-this"))
