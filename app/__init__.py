@@ -49,3 +49,14 @@ def create_app():
     app.register_blueprint(hls_bp)
     
     return app
+# ... your existing code above ...
+
+    app.register_blueprint(public_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(api_bp)
+    app.register_blueprint(hls_bp)
+    
+    return app
+
+# --- ADD THIS EXACT LINE AT THE VERY BOTTOM ---
+app = create_app()
