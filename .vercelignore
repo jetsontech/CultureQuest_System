@@ -1,0 +1,44 @@
+# Vercel Deployment Exclusions
+
+# Build artifacts
+.vercel
+node_modules
+.venv
+__pycache__
+*.pyc
+
+# Local Database Files (Use Supabase for production)
+instance/*.db
+instance/*.sqlite
+*.db
+app.db
+
+# Large Media Files (Should be on S3/R2)
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+streams/*
+uploads/*
+
+# Scripts & Misc
+*.ps1
+*.sh
+*.csv
+*.m3u
+docs/
+scripts/
+.env.local
+.env
+README.md
+CQ_game.txt
+Developer Technical Roadmap CQ Handoff.txt
+Pluto_TV_Integration_Script.*
+_*.py
+activate_all_channels.py
+cleanup_channels.py
+fill_blank_streams.py
+force_fix_streams.py
+promote_us_channels.py
+set_channel_local_stream.py
+surgical_fix_streams.py
+update_db_domains.py
+update_stream_host.py
