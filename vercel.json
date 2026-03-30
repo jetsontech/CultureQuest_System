@@ -1,1 +1,1 @@
-{ "rewrites": [ { "source": "/(.*)", "destination": "wsgi.py" } ] }
+{`n  "version": 2,`n  "builds": [`n    { "src": "wsgi.py", "use": "@vercel/python" }`n  ],`n  "rewrites": [`n    { "source": "/(.*)", "destination": "wsgi.py" }`n  ]`n}
