@@ -1,6 +1,6 @@
-from app import create_app
-from app.db import init_db
-from app.db_upgrade import ensure_platform_foundation
+from cq_app import create_app
+from cq_app.db import init_db
+from cq_app.db_upgrade import ensure_platform_foundation
 
 app = create_app()
 with app.app_context():
