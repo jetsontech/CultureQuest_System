@@ -1,11 +1,11 @@
 import os
 import sys
 
-# Ensure the root directory is in the python path
-sys.path.append(os.path.dirname(__file__))
-
-# Minimal test: does the Vercel runtime work at all?
-from flask import Flask
+# Ensure the project root is FIRST in the python path so our 'app' package
+# is found before any Vercel-internal 'app' module
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
 _init_error = None
 _real_app = None
@@ -20,6 +20,7 @@ except Exception:
 if _real_app:
     app = _real_app
 else:
+    from flask import Flask
     app = Flask(__name__)
 
     @app.route("/")
