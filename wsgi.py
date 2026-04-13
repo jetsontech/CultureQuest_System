@@ -4,22 +4,30 @@ import sys
 # Ensure the root directory is in the python path
 sys.path.append(os.path.dirname(__file__))
 
+# Minimal test: does the Vercel runtime work at all?
+from flask import Flask
+
+_init_error = None
+_real_app = None
+
 try:
     from app import create_app
-    app = create_app()
-except Exception as e:
+    _real_app = create_app()
+except Exception:
     import traceback
-    # If the app fails to initialize, create a minimal diagnostic app
-    from flask import Flask
-    app = Flask(__name__)
-    _error = traceback.format_exc()
+    _init_error = traceback.format_exc()
 
-    @app.route("/health")
-    def health():
-        return f"INIT ERROR:\n{_error}", 500
+if _real_app:
+    app = _real_app
+else:
+    app = Flask(__name__)
 
     @app.route("/")
     def index():
-        return f"CultureQuest failed to start:\n{_error}", 500
+        return f"<pre>CultureQuest failed to start:\n\n{_init_error}</pre>", 500
+
+    @app.route("/health")
+    def health():
+        return f"<pre>INIT ERROR:\n\n{_init_error}</pre>", 500
 
 application = app
