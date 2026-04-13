@@ -1,5 +1,5 @@
 ﻿{% extends "base.html" %}
-{% block title %}CultureQuest Ã‚Â· Admin Schedules{% endblock %}
+{% block title %}CultureQuest &middot; Admin Schedules{% endblock %}
 
 {% block content %}
 <div class="section-head">
@@ -17,7 +17,7 @@
       <label>Channel
         <select name="channel_id" required>
           {% for channel in channels %}
-          <option value="{{ channel['id'] }}">CH {{ channel['number'] }} Ã‚Â· {{ channel['name'] }}</option>
+          <option value="{{ channel['id'] }}">CH {{ channel['number'] }} &middot; {{ channel['name'] }}</option>
           {% endfor %}
         </select>
       </label>
@@ -60,7 +60,8 @@
         </div>
 
         <form method="post" action="{{ url_for('admin.delete_schedule', schedule_id=row['id']) }}" class="top-gap-sm">
-          <button class="btn btn-danger btn-small" type="submit" onclick="return confirm('Delete this schedule block?')">Delete</button>
+          <button class="btn btn-danger btn-small" type="submit"
+            onclick="return confirm('Delete this schedule block?')">Delete</button>
         </form>
       </div>
       {% endfor %}
@@ -68,20 +69,3 @@
   </div>
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

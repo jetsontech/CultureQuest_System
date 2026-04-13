@@ -16,7 +16,7 @@
       {% for channel in featured %}
       <a class="feature-tile" href="{{ url_for('public.channel_detail', slug=channel['slug']) }}">
         <strong>{{ channel['name'] }}</strong>
-        <span>CH {{ channel['number'] }} Â· {{ channel['category'] or 'Featured' }}</span>
+        <span>CH {{ channel['number'] }} &middot; {{ channel['category'] or 'Featured' }}</span>
       </a>
       {% endfor %}
     </div>

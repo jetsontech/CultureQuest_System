@@ -1,5 +1,5 @@
 ﻿{% extends "base.html" %}
-{% block title %}CultureQuest Ã‚Â· Admin Assets{% endblock %}
+{% block title %}CultureQuest &middot; Admin Assets{% endblock %}
 
 {% block content %}
 <div class="section-head">
@@ -51,16 +51,17 @@
         <div>{{ asset['duration_seconds'] }}</div>
         <div class="break">
           {% if asset['public_url'] %}
-            {{ asset['public_url'] }}
+          {{ asset['public_url'] }}
           {% elif asset['file_path'] %}
-            {{ asset['file_path'] }}
+          {{ asset['file_path'] }}
           {% else %}
-            Ã¢â‚¬â€
+          Ã¢â‚¬â€
           {% endif %}
         </div>
         <div>
           <form method="post" action="{{ url_for('admin.delete_asset', asset_id=asset['id']) }}">
-            <button class="btn btn-danger btn-small" type="submit" onclick="return confirm('Delete this asset?')">Delete</button>
+            <button class="btn btn-danger btn-small" type="submit"
+              onclick="return confirm('Delete this asset?')">Delete</button>
           </form>
         </div>
       </div>
@@ -69,20 +70,3 @@
   </div>
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

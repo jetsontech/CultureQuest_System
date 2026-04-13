@@ -1,8 +1,6 @@
 import os
 import uuid
 import subprocess
-import boto3
-from botocore.config import Config
 from datetime import datetime
 from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash, session, send_from_directory, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -727,6 +725,12 @@ def upload_multipart():
 
 
 def get_s3_client():
+    try:
+        import boto3
+        from botocore.config import Config
+    except ImportError:
+        return None
+
     endpoint = os.getenv("S3_ENDPOINT")
     access_key = os.getenv("S3_ACCESS_KEY_ID")
     secret_key = os.getenv("S3_SECRET_ACCESS_KEY")
@@ -977,8 +981,5 @@ def dashboard():
 
 
 
-@public_bp.route('/streams/<path:filename>')
-def streams(filename):
-    import os
-    from flask import send_from_directory
-    return send_from_directory(os.path.join(os.getcwd(), 'streams'), filename)
+
+

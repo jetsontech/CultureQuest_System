@@ -1,5 +1,5 @@
 ﻿{% extends "base.html" %}
-{% block title %}CultureQuest Ã‚Â· {{ channel["name"] }}{% endblock %}
+{% block title %}CultureQuest &middot; {{ channel["name"] }}{% endblock %}
 
 {% block content %}
 <div class="section-head">
@@ -12,139 +12,141 @@
 
 <div class="actions top-gap-sm">
   {% if previous_slug %}
-    <a id="prev-channel-link" class="btn" href="{{ url_for('public.channel_detail', slug=previous_slug) }}">Ã¢â€”â‚¬ Previous</a>
+  <a id="prev-channel-link" class="btn" href="{{ url_for('public.channel_detail', slug=previous_slug) }}">Ã¢â€”â‚¬
+    Previous</a>
   {% endif %}
 
   <a class="btn" href="{{ url_for('public.beacon') }}">Guide</a>
 
   {% if next_slug %}
-    <a id="next-channel-link" class="btn btn-primary" href="{{ url_for('public.channel_detail', slug=next_slug) }}">Next Ã¢â€“Â¶</a>
+  <a id="next-channel-link" class="btn btn-primary" href="{{ url_for('public.channel_detail', slug=next_slug) }}">Next
+    Ã¢â€“Â¶</a>
   {% endif %}
 </div>
 
 <div class="player-layout top-gap">
   <div class="card player-card">
     {% if play_url %}
-      <video id="video" class="player" controls autoplay playsinline></video>
+    <video id="video" class="player" controls autoplay playsinline></video>
 
-      <div class="top-gap-sm">
-        <div class="muted">Playback URL</div>
-        <div class="break">{{ play_url }}</div>
-      </div>
+    <div class="top-gap-sm">
+      <div class="muted">Playback URL</div>
+      <div class="break">{{ play_url }}</div>
+    </div>
 
-      <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-      <script>
-        const video = document.getElementById("video");
-        const src = {{ play_url|tojson }};
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+      const video = document.getElementById("video");
+      const src = {{ play_url| tojson }};
 
-        const STORAGE_MUTE_KEY = "culturequest_muted";
-        const STORAGE_VOLUME_KEY = "culturequest_volume";
+      const STORAGE_MUTE_KEY = "culturequest_muted";
+      const STORAGE_VOLUME_KEY = "culturequest_volume";
 
-        function loadPlayerPrefs() {
-          const savedMuted = localStorage.getItem(STORAGE_MUTE_KEY);
-          const savedVolume = localStorage.getItem(STORAGE_VOLUME_KEY);
+      function loadPlayerPrefs() {
+        const savedMuted = localStorage.getItem(STORAGE_MUTE_KEY);
+        const savedVolume = localStorage.getItem(STORAGE_VOLUME_KEY);
 
-          video.muted = savedMuted === null ? false : savedMuted === "true";
+        video.muted = savedMuted === null ? false : savedMuted === "true";
 
-          if (savedVolume !== null) {
-            const vol = parseFloat(savedVolume);
-            if (!Number.isNaN(vol) && vol >= 0 && vol <= 1) {
-              video.volume = vol;
-            } else {
-              video.volume = 1.0;
-            }
+        if (savedVolume !== null) {
+          const vol = parseFloat(savedVolume);
+          if (!Number.isNaN(vol) && vol >= 0 && vol <= 1) {
+            video.volume = vol;
           } else {
             video.volume = 1.0;
           }
-        }
-
-        function savePlayerPrefs() {
-          localStorage.setItem(STORAGE_MUTE_KEY, String(video.muted));
-          localStorage.setItem(STORAGE_VOLUME_KEY, String(video.volume));
-        }
-
-        function showError(message) {
-          let box = document.getElementById("player-error");
-          if (!box) {
-            box = document.createElement("div");
-            box.id = "player-error";
-            box.className = "flash danger top-gap-sm";
-            video.parentNode.appendChild(box);
-          }
-          box.textContent = message;
-        }
-
-        loadPlayerPrefs();
-        video.addEventListener("volumechange", savePlayerPrefs);
-
-        if (!src) {
-          showError("No stream URL was provided.");
-        } else if (window.Hls && Hls.isSupported()) {
-          const hls = new Hls({
-            enableWorker: true,
-            lowLatencyMode: true,
-            backBufferLength: 90,
-            manifestLoadingMaxRetry: 6,
-            levelLoadingMaxRetry: 6,
-            fragLoadingMaxRetry: 6
-          });
-
-          hls.loadSource(src);
-          hls.attachMedia(video);
-
-          hls.on(Hls.Events.MANIFEST_PARSED, function () {
-            video.play().catch(() => {});
-          });
-
-          hls.on(Hls.Events.ERROR, function (event, data) {
-            console.log("HLS error:", data);
-
-            if (data && data.fatal) {
-              if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                showError("Stream network error. Source may block playback or be temporarily unavailable.");
-                hls.startLoad();
-              } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                showError("Media decode error. Trying recovery...");
-                hls.recoverMediaError();
-              } else {
-                showError("Fatal playback error. This channel may be blocked or offline.");
-              }
-            }
-          });
-        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-          video.src = src;
-          video.addEventListener("loadedmetadata", function () {
-            video.play().catch(() => {});
-          });
         } else {
-          showError("This browser cannot play HLS directly.");
+          video.volume = 1.0;
         }
+      }
 
-        document.addEventListener("keydown", function (e) {
-          if (e.key === "ArrowLeft") {
-            const prev = document.getElementById("prev-channel-link");
-            if (prev) window.location.href = prev.href;
-          }
+      function savePlayerPrefs() {
+        localStorage.setItem(STORAGE_MUTE_KEY, String(video.muted));
+        localStorage.setItem(STORAGE_VOLUME_KEY, String(video.volume));
+      }
 
-          if (e.key === "ArrowRight") {
-            const next = document.getElementById("next-channel-link");
-            if (next) window.location.href = next.href;
-          }
+      function showError(message) {
+        let box = document.getElementById("player-error");
+        if (!box) {
+          box = document.createElement("div");
+          box.id = "player-error";
+          box.className = "flash danger top-gap-sm";
+          video.parentNode.appendChild(box);
+        }
+        box.textContent = message;
+      }
 
-          if (e.key.toLowerCase() === "m") {
-            video.muted = !video.muted;
-            savePlayerPrefs();
-          }
+      loadPlayerPrefs();
+      video.addEventListener("volumechange", savePlayerPrefs);
 
-          if (e.key.toLowerCase() === "f") {
-            if (video.requestFullscreen) {
-              video.requestFullscreen();
+      if (!src) {
+        showError("No stream URL was provided.");
+      } else if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 90,
+          manifestLoadingMaxRetry: 6,
+          levelLoadingMaxRetry: 6,
+          fragLoadingMaxRetry: 6
+        });
+
+        hls.loadSource(src);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play().catch(() => { });
+        });
+
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          console.log("HLS error:", data);
+
+          if (data && data.fatal) {
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              showError("Stream network error. Source may block playback or be temporarily unavailable.");
+              hls.startLoad();
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              showError("Media decode error. Trying recovery...");
+              hls.recoverMediaError();
+            } else {
+              showError("Fatal playback error. This channel may be blocked or offline.");
             }
           }
         });
-      </script>
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = src;
+        video.addEventListener("loadedmetadata", function () {
+          video.play().catch(() => { });
+        });
+      } else {
+        showError("This browser cannot play HLS directly.");
+      }
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowLeft") {
+          const prev = document.getElementById("prev-channel-link");
+          if (prev) window.location.href = prev.href;
+        }
+
+        if (e.key === "ArrowRight") {
+          const next = document.getElementById("next-channel-link");
+          if (next) window.location.href = next.href;
+        }
+
+        if (e.key.toLowerCase() === "m") {
+          video.muted = !video.muted;
+          savePlayerPrefs();
+        }
+
+        if (e.key.toLowerCase() === "f") {
+          if (video.requestFullscreen) {
+            video.requestFullscreen();
+          }
+        }
+      });
+    </script>
     {% else %}
-      <div class="placeholder">No active stream configured yet.</div>
+    <div class="placeholder">No active stream configured yet.</div>
     {% endif %}
   </div>
 
@@ -159,10 +161,10 @@
       <h3>Remote</h3>
       <div class="actions top-gap-sm">
         {% if previous_slug %}
-          <a class="btn" href="{{ url_for('public.channel_detail', slug=previous_slug) }}">Channel -</a>
+        <a class="btn" href="{{ url_for('public.channel_detail', slug=previous_slug) }}">Channel -</a>
         {% endif %}
         {% if next_slug %}
-          <a class="btn btn-primary" href="{{ url_for('public.channel_detail', slug=next_slug) }}">Channel +</a>
+        <a class="btn btn-primary" href="{{ url_for('public.channel_detail', slug=next_slug) }}">Channel +</a>
         {% endif %}
       </div>
       <p class="muted top-gap-sm">Keys: Ã¢â€ Â Ã¢â€ â€™ channel, M mute, F fullscreen</p>
@@ -170,13 +172,3 @@
   </div>
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-

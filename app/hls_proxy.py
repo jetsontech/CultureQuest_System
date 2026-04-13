@@ -94,7 +94,8 @@ def proxy_manifest(slug):
 
     return Response(
         "\n".join(out_lines),
-        content_type="application/vnd.apple.mpegurl"
+        content_type="application/vnd.apple.mpegurl",
+        headers={"Access-Control-Allow-Origin": "*"}
     )
 
 
