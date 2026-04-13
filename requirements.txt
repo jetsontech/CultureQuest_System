@@ -1,8 +1,6 @@
 flask
 gunicorn
 psycopg2-binary
-boto3
-botocore
 werkzeug
 python-dotenv
 requests
