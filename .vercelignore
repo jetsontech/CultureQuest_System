@@ -33,7 +33,10 @@ README.md
 CQ_game.txt
 Developer Technical Roadmap CQ Handoff.txt
 Pluto_TV_Integration_Script.*
-_*.py
+_add_search_route.py
+_cleanup_streams_route.py
+_patch_base_search.py
+_restore_admin_routes.py
 activate_all_channels.py
 cleanup_channels.py
 fill_blank_streams.py
